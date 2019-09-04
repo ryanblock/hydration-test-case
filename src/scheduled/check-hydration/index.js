@@ -31,7 +31,7 @@ exports.handler = function checkHydration(payload, context, callback) {
         }
       })
     },
-    // Run install
+    // Run hydrate.install
     callback => {
       console.log('Running hydrate.install...')
       let basepath = tmp
@@ -47,7 +47,7 @@ exports.handler = function checkHydration(payload, context, callback) {
         }
       })
     },
-    // Run hydrate
+    // Run hydrate.shared
     callback => {
       console.log('About to run hydrate.shared...')
       let cwd = process.cwd()

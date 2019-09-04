@@ -40,9 +40,9 @@ exports.handler = function checkHydration(payload, context, callback) {
       let shell = true
       let timeout = 1000*60
       hydrate.install({basepath, /*env,*/ quiet, shell, timeout}, (err, results) => {
+        console.log('Hydration results:', JSON.stringify(results[0].raw,null,2))
         if (err) callback(err)
         else {
-          console.log('Hydration results:', JSON.stringify(results[0].raw,null,2))
           callback()
         }
       })

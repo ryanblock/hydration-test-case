@@ -9,6 +9,7 @@ let hydrate = require('@architect/hydrate')
 exports.handler = function checkHydration(payload, context, callback) {
   let now = `${Date.now()}`
   let tmp = join(path.sep, 'tmp', now)
+  let isLocal = !process.env.NODE_ENV || process.env.NODE_ENV === 'testing'
 
   series([
     // Make the new working folder
@@ -35,11 +36,33 @@ exports.handler = function checkHydration(payload, context, callback) {
     callback => {
       console.log('Running hydrate.install...')
       let basepath = tmp
-      // let env = {NODE_ENV: 'production'} // Not sure why env isn't working, will have to go fix later
+      let env
+      if (isLocal) {
+        env = {
+          PATH: '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin',
+          NODE_PATH: '/usr/local/lib/node_modules',
+          HOME: '/tmp'
+        }
+      }
+      else {
+        env = {
+          LD_LIBRARY_PATH: '/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib',
+          PATH: '/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin',
+          PWD: '/var/task',
+          LANG: 'en_US.UTF-8',
+          NODE_PATH: '/opt/nodejs/node10/node_modules:/opt/nodejs/node_modules:/var/runtime/node_modules',
+          NODE_ENV: 'staging',
+          FORCE_COLOR: '3',
+          SHLVL: '0',
+          ARC_APP_NAME: 'begin',
+          CI: 'true',
+          HOME: '/tmp'
+        }
+      }
       let quiet = true
       let shell = true
       let timeout = 1000*60
-      hydrate.install({basepath, /*env,*/ quiet, shell, timeout}, (err, results) => {
+      hydrate.install({basepath, env, quiet, shell, timeout}, (err, results) => {
         console.log('Hydration results:', JSON.stringify(results[0].raw,null,2))
         if (err) callback(err)
         else {
@@ -121,7 +144,7 @@ exports.handler = function checkHydration(payload, context, callback) {
     },
     callback => {
       // Local teardown
-      if (!process.env.NODE_ENV || process.env.NODE_ENV === 'testing') {
+      if (isLocal) {
         console.log('Running local teardown')
         rm(tmp, err => {
           if (err) callback(err)

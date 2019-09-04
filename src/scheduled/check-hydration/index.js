@@ -79,6 +79,7 @@ exports.handler = function checkHydration(payload, context, callback) {
       hydrate.shared(err => {
         if (err) callback(err)
         else {
+          console.log('hydrate.shared completed')
           console.log('Switching process back to', cwd)
           process.chdir(cwd)
           callback()
@@ -137,7 +138,7 @@ exports.handler = function checkHydration(payload, context, callback) {
       }), err => {
         if (err) callback(err)
         else {
-          console.log(`All ${expectedFiles.length} expected files are hydrated and accounted for`)
+          console.log(`All ${expectedFiles.length} expected files are hydrated and accounted for!`)
           callback()
         }
       })
